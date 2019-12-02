@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  PathspecTests.swift
+//  Pathspec
 //
 //  Created by Geoffrey Foster on 2019-06-29.
 //
@@ -255,5 +255,8 @@ final class PathspecTests: XCTestCase {
 		)
 	}
 	
-	// MARK: -
+	func testFailingInitializers() {
+		XCTAssertNil(GitIgnoreSpec(pattern: ""))
+		XCTAssertNil(GitIgnoreSpec(pattern: "***"))
+	}
 }

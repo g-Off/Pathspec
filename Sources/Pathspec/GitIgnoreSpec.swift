@@ -7,7 +7,7 @@
 
 import Foundation
 
-class GitIgnoreSpec: Spec {
+struct GitIgnoreSpec: Spec {
 	private(set) var inclusive: Bool = true
 	let regex: NSRegularExpression
 	

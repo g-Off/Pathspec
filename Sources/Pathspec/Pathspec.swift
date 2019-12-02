@@ -6,33 +6,18 @@
 //
 
 public final class Pathspec {
-	public enum Kind {
-		case git
-		case regex
-	}
-	private var specs: [Spec] = []
+	private let specs: [Spec]
 	
-	public init(kind: Kind, patterns: String...) {
-		for pattern in patterns {
-			add(pattern: pattern, kind: kind)
+	public init(patterns: String...) {
+		specs = patterns.compactMap {
+			GitIgnoreSpec(pattern: $0)
 		}
 	}
 	
 	public func match(path: String) -> Bool {
-		return matchingSpecs(path: path).allSatisfy { $0.inclusive }
-	}
-	
-	func add(pattern: String, kind: Kind) {
-		let spec: Spec?
-		switch kind {
-		case .git:
-			spec = GitIgnoreSpec(pattern: pattern)
-		case .regex:
-			spec = RegexSpec()
-		}
-		if let spec = spec {
-			specs.append(spec)
-		}
+		let matchingSpecs = self.matchingSpecs(path: path)
+		guard !matchingSpecs.isEmpty else { return false }
+		return matchingSpecs.allSatisfy { $0.inclusive }
 	}
 	
 	private func matchingSpecs(path: String) -> [Spec] {
