@@ -38,3 +38,21 @@ extension Pathspec: ExpressibleByArrayLiteral {
         })
     }
 }
+
+extension Pathspec: CustomStringConvertible {
+    public var description: String {
+        let specsDescription = specs.map { spec in
+            "  " + String(describing: spec)
+        }.joined(separator: ",\n")
+        return "<\(type(of: self)) specs: [\n\(specsDescription)\n]>"
+    }
+}
+
+extension Pathspec: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        let specsDescription = specs.map { spec in
+            "  " + String(reflecting: spec)
+        }.joined(separator: ",\n")
+        return "<\(type(of: self)) specs: [\n\(specsDescription)\n]>"
+    }
+}
