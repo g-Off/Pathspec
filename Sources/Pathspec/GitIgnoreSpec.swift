@@ -16,9 +16,13 @@ struct GitIgnoreSpec: Spec {
     }
 
 	private(set) var inclusive: Bool = true
+
+    let pattern: String
 	let regex: NSRegularExpression
 
     init(pattern: String) throws {
+        self.pattern = pattern
+
         guard !pattern.isEmpty else { throw Error.emptyPattern }
 		guard !pattern.hasPrefix("#") else { throw Error.containsPoundPrefix }
 		guard !pattern.contains("***") else { throw Error.containsTrippleStar }
@@ -154,4 +158,19 @@ struct GitIgnoreSpec: Spec {
 		
 		return regex
 	}
+}
+
+extension GitIgnoreSpec: CustomStringConvertible {
+    var description: String {
+        let pattern = self.pattern.debugDescription
+        return "<\(type(of: self)) pattern: \(pattern)>"
+    }
+}
+
+extension GitIgnoreSpec: CustomDebugStringConvertible {
+    var debugDescription: String {
+        let pattern = self.pattern.debugDescription
+        let regexPattern = self.regex.pattern.debugDescription
+        return "<\(type(of: self)) pattern: \(pattern) regex: \(regexPattern)>"
+    }
 }

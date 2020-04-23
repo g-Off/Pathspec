@@ -24,7 +24,19 @@ public func XCTUnwrap<T>(_ expression: @autoclosure () throws -> T?, _ message: 
 #endif
 
 final class PathspecTests: XCTestCase {
-	func testAbsoluteRoot() throws {
+	func testDescription() throws {
+        let spec = try XCTUnwrap(GitIgnoreSpec(pattern: "foobar"))
+
+        XCTAssertEqual(spec.description, "<GitIgnoreSpec pattern: \"foobar\">")
+    }
+
+    func testDebugDescription() throws {
+        let spec = try XCTUnwrap(GitIgnoreSpec(pattern: "foobar"))
+
+        XCTAssertEqual(spec.debugDescription, "<GitIgnoreSpec pattern: \"foobar\" regex: \"^(?:.+/)?foobar(?:/.*)?$\">")
+    }
+
+    func testAbsoluteRoot() throws {
 		XCTAssertThrowsError(try GitIgnoreSpec(pattern: "/"))
 	}
 	
