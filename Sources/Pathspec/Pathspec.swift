@@ -8,7 +8,7 @@
 public final class Pathspec {
 	private let specs: [Spec]
 	
-	public init(patterns: String...) {
+	public init(patterns: [String]) {
 		specs = patterns.compactMap {
 			GitIgnoreSpec(pattern: $0)
 		}
@@ -23,4 +23,12 @@ public final class Pathspec {
 	private func matchingSpecs(path: String) -> [Spec] {
 		return specs.filter { $0.match(file: path) }
 	}
+}
+
+extension Pathspec: ExpressibleByArrayLiteral {
+    public typealias ArrayLiteralElement = String
+
+    public convenience init(arrayLiteral: String...) {
+        self.init(patterns: arrayLiteral)
+    }
 }
