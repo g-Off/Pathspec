@@ -25,11 +25,11 @@ public func XCTUnwrap<T>(_ expression: @autoclosure () throws -> T?, _ message: 
 
 final class PathspecTests: XCTestCase {
 	func testAbsoluteRoot() throws {
-		XCTAssertNil(GitIgnoreSpec(pattern: "/"))
+		XCTAssertThrowsError(try GitIgnoreSpec(pattern: "/"))
 	}
 	
 	func testComment() throws {
-		XCTAssertNil(GitIgnoreSpec(pattern: "# Cork soakers."))
+        XCTAssertThrowsError(try GitIgnoreSpec(pattern: "# Cork soakers."))
 	}
 	
 	func testIgnore() throws {
@@ -255,8 +255,8 @@ final class PathspecTests: XCTestCase {
 		)
 	}
 	
-	func testFailingInitializers() {
-		XCTAssertNil(GitIgnoreSpec(pattern: ""))
-		XCTAssertNil(GitIgnoreSpec(pattern: "***"))
+	func testFailingInitializers() throws {
+		XCTAssertThrowsError(try GitIgnoreSpec(pattern: ""))
+		XCTAssertThrowsError(try GitIgnoreSpec(pattern: "***"))
 	}
 }

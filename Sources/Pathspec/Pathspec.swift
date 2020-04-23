@@ -8,11 +8,15 @@
 public final class Pathspec {
 	private let specs: [Spec]
 	
-	public init(patterns: [String]) {
-		specs = patterns.compactMap {
-			GitIgnoreSpec(pattern: $0)
-		}
+	public convenience init(patterns: [String]) throws {
+		self.init(specs: try patterns.map {
+            try GitIgnoreSpec(pattern: $0)
+        })
 	}
+
+    public init(specs: [Spec]) {
+        self.specs = specs
+    }
 	
 	public func match(path: String) -> Bool {
 		let matchingSpecs = self.matchingSpecs(path: path)
@@ -29,6 +33,8 @@ extension Pathspec: ExpressibleByArrayLiteral {
     public typealias ArrayLiteralElement = String
 
     public convenience init(arrayLiteral: String...) {
-        self.init(patterns: arrayLiteral)
+        self.init(specs: arrayLiteral.compactMap {
+            try? GitIgnoreSpec(pattern: $0)
+        })
     }
 }
