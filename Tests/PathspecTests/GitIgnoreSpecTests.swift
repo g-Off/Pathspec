@@ -23,7 +23,7 @@ public func XCTUnwrap<T>(_ expression: @autoclosure () throws -> T?, _ message: 
 }
 #endif
 
-final class PathspecTests: XCTestCase {
+final class GitIgnoreSpecTests: XCTestCase {
 	func testDescription() throws {
         let spec = try XCTUnwrap(GitIgnoreSpec(pattern: "foobar"))
 
