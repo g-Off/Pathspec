@@ -8,14 +8,21 @@
 import Foundation
 
 struct GitIgnoreSpec: Spec {
+    enum Error: Swift.Error {
+        case emptyPattern
+        case containsPoundPrefix
+        case containsTrippleStar
+        case emptyRoot
+    }
+
 	private(set) var inclusive: Bool = true
 	let regex: NSRegularExpression
-	
-	init?(pattern: String) {
-		guard !pattern.isEmpty else { return nil }
-		guard !pattern.hasPrefix("#") else { return nil }
-		guard !pattern.contains("***") else { return nil }
-		guard pattern != "/" else { return nil }
+
+    init(pattern: String) throws {
+        guard !pattern.isEmpty else { throw Error.emptyPattern }
+		guard !pattern.hasPrefix("#") else { throw Error.containsPoundPrefix }
+		guard !pattern.contains("***") else { throw Error.containsTrippleStar }
+		guard pattern != "/" else { throw Error.emptyPattern }
 		
 		var pattern = pattern
 		if pattern.hasPrefix("!") {
@@ -81,11 +88,7 @@ struct GitIgnoreSpec: Spec {
 		
 		regexString += "$"
 		
-		do {
-			regex = try NSRegularExpression(pattern: regexString, options: [])
-		} catch {
-			return nil
-		}
+		regex = try NSRegularExpression(pattern: regexString, options: [])
 	}
 	
 	func match(file: String) -> Bool {
