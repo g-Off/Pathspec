@@ -8,14 +8,25 @@
 import Foundation
 
 struct GitIgnoreSpec: Spec {
+    enum Error: Swift.Error {
+        case emptyPattern
+        case commented
+        case invalid
+        case emptyRoot
+    }
+
 	private(set) var inclusive: Bool = true
+
+    let pattern: String
 	let regex: NSRegularExpression
-	
-	init?(pattern: String) {
-		guard !pattern.isEmpty else { return nil }
-		guard !pattern.hasPrefix("#") else { return nil }
-		guard !pattern.contains("***") else { return nil }
-		guard pattern != "/" else { return nil }
+
+    init(pattern: String) throws {
+        self.pattern = pattern
+
+        guard !pattern.isEmpty else { throw Error.emptyPattern }
+		guard !pattern.hasPrefix("#") else { throw Error.commented }
+		guard !pattern.contains("***") else { throw Error.invalid }
+		guard pattern != "/" else { throw Error.emptyRoot }
 		
 		var pattern = pattern
 		if pattern.hasPrefix("!") {
@@ -81,11 +92,7 @@ struct GitIgnoreSpec: Spec {
 		
 		regexString += "$"
 		
-		do {
-			regex = try NSRegularExpression(pattern: regexString, options: [])
-		} catch {
-			return nil
-		}
+		regex = try NSRegularExpression(pattern: regexString, options: [])
 	}
 	
 	func match(file: String) -> Bool {
@@ -151,4 +158,19 @@ struct GitIgnoreSpec: Spec {
 		
 		return regex
 	}
+}
+
+extension GitIgnoreSpec: CustomStringConvertible {
+    var description: String {
+        let pattern = self.pattern.debugDescription
+        return "<\(type(of: self)) pattern: \(pattern)>"
+    }
+}
+
+extension GitIgnoreSpec: CustomDebugStringConvertible {
+    var debugDescription: String {
+        let pattern = self.pattern.debugDescription
+        let regexPattern = self.regex.pattern.debugDescription
+        return "<\(type(of: self)) pattern: \(pattern) regex: \(regexPattern)>"
+    }
 }
