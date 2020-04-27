@@ -10,8 +10,8 @@ import Foundation
 struct GitIgnoreSpec: Spec {
     enum Error: Swift.Error {
         case emptyPattern
-        case containsPoundPrefix
-        case containsTrippleStar
+        case commented
+        case invalid
         case emptyRoot
     }
 
@@ -24,9 +24,9 @@ struct GitIgnoreSpec: Spec {
         self.pattern = pattern
 
         guard !pattern.isEmpty else { throw Error.emptyPattern }
-		guard !pattern.hasPrefix("#") else { throw Error.containsPoundPrefix }
-		guard !pattern.contains("***") else { throw Error.containsTrippleStar }
-		guard pattern != "/" else { throw Error.emptyPattern }
+		guard !pattern.hasPrefix("#") else { throw Error.commented }
+		guard !pattern.contains("***") else { throw Error.invalid }
+		guard pattern != "/" else { throw Error.emptyRoot }
 		
 		var pattern = pattern
 		if pattern.hasPrefix("!") {
