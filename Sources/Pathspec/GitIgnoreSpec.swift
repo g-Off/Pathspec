@@ -9,8 +9,6 @@ import Foundation
 
 struct GitIgnoreSpec: Spec {
     enum Error: Swift.Error {
-        case emptyPattern
-        case commented
         case invalid
         case emptyRoot
     }
@@ -18,13 +16,20 @@ struct GitIgnoreSpec: Spec {
 	private(set) var inclusive: Bool = true
 
     let pattern: String
-	let regex: NSRegularExpression
+	let regex: NSRegularExpression?
 
     init(pattern: String) throws {
         self.pattern = pattern
 
-        guard !pattern.isEmpty else { throw Error.emptyPattern }
-		guard !pattern.hasPrefix("#") else { throw Error.commented }
+        guard !pattern.isEmpty else {
+            self.regex = nil
+            return
+        }
+        guard !pattern.hasPrefix("#") else {
+            self.regex = nil
+            return
+        }
+
 		guard !pattern.contains("***") else { throw Error.invalid }
 		guard pattern != "/" else { throw Error.emptyRoot }
 		
@@ -96,6 +101,9 @@ struct GitIgnoreSpec: Spec {
 	}
 	
 	func match(file: String) -> Bool {
+        guard let regex = regex else {
+            return false
+        }
 		return regex.firstMatch(in: file, options: [], range: NSRange(file.startIndex..<file.endIndex, in: file)) != nil
 	}
 	
@@ -170,7 +178,9 @@ extension GitIgnoreSpec: CustomStringConvertible {
 extension GitIgnoreSpec: CustomDebugStringConvertible {
     var debugDescription: String {
         let pattern = self.pattern.debugDescription
-        let regexPattern = self.regex.pattern.debugDescription
+        guard let regexPattern = self.regex?.pattern.debugDescription else {
+            return "<\(type(of: self)) pattern: \(pattern) ignored>"
+        }
         return "<\(type(of: self)) pattern: \(pattern) regex: \(regexPattern)>"
     }
 }

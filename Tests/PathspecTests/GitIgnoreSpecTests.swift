@@ -26,13 +26,23 @@ final class GitIgnoreSpecTests: XCTestCase {
 	}
 	
 	func testComment() throws {
-        XCTAssertThrowsError(try GitIgnoreSpec(pattern: "# Cork soakers."))
+        let spec = try XCTUnwrap(GitIgnoreSpec(pattern: "# Cork soakers."))
+
+        XCTAssertFalse(spec.match(file: "dummy"))
+        XCTAssertEqual(spec.debugDescription, "<GitIgnoreSpec pattern: \"# Cork soakers.\" ignored>")
 	}
+
+    func testEmpty() throws {
+        let spec = try XCTUnwrap(GitIgnoreSpec(pattern: ""))
+
+        XCTAssertFalse(spec.match(file: "dummy"))
+        XCTAssertEqual(spec.debugDescription, "<GitIgnoreSpec pattern: \"\" ignored>")
+    }
 	
 	func testIgnore() throws {
 		let spec = try XCTUnwrap(GitIgnoreSpec(pattern: "!temp"))
 		XCTAssertFalse(spec.inclusive)
-		XCTAssertEqual(spec.regex.pattern, "^(?:.+/)?temp$")
+		XCTAssertEqual(spec.regex?.pattern, "^(?:.+/)?temp$")
 		let result = spec.match(file: "temp/foo")
 		XCTAssertEqual(result, false)
 	}
@@ -43,7 +53,7 @@ final class GitIgnoreSpecTests: XCTestCase {
 	private func _testRunner(pattern: String, regex: String, files: [String], expectedResults: [String], file: StaticString = #file, line: UInt = #line) throws {
 		let spec = try XCTUnwrap(GitIgnoreSpec(pattern: pattern), file: file, line: line)
 		XCTAssertTrue(spec.inclusive, file: file, line: line)
-		XCTAssertEqual(spec.regex.pattern, regex, file: file, line: line)
+		XCTAssertEqual(spec.regex?.pattern, regex, file: file, line: line)
 		let results = spec.match(files: files)
 		XCTAssertEqual(results, expectedResults, file: file, line: line)
 	}
@@ -253,7 +263,6 @@ final class GitIgnoreSpecTests: XCTestCase {
 	}
 	
 	func testFailingInitializers() throws {
-		XCTAssertThrowsError(try GitIgnoreSpec(pattern: ""))
 		XCTAssertThrowsError(try GitIgnoreSpec(pattern: "***"))
 	}
 }
